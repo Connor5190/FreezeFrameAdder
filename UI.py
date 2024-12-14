@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
 import shutil
+import subprocess
 import os
 
 # Global variable to store the selected file path
@@ -20,6 +21,25 @@ def place_mp4_file():
     else:
         file_label.config(text="No file selected")
 
+
+def add_overlay(output_video):
+    try:
+        # FFmpeg command to overlay the PNG on the video
+        cmd = [
+            'ffmpeg',
+            '-i', selected_file,  # Input video file
+            '-i', redCircle.png,  # Overlay PNG file
+            '-filter_complex', 'overlay=W-w-10:H-h-10',  # Position overlay at the bottom-right corner
+            '-codec:a', 'copy',  # Keep the audio track as is
+            output_video  # Output video file
+        ]
+
+        # Run the command using subprocess
+        subprocess.run(cmd, check=True)
+        print(f"Overlay added successfully! Output saved as {output_video}")
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error occurred: {e}")
 
 # Function to download (copy) the selected file to the Downloads folder
 def download_file():
@@ -44,29 +64,4 @@ def download_file():
         except Exception as e:
             status_label.config(text=f"Error: {e}")
     else:
-        status_label.config(text="No file selected to download.")
-
-
-# Create the main window
-root = tk.Tk()
-root.title("MP4 File Selector and Downloader")
-root.geometry("400x300")
-
-# Add a button to place MP4 file
-select_button = tk.Button(root, text="Place MP4 File", command=place_mp4_file)
-select_button.pack(pady=20)
-
-# Label to display the selected file path
-file_label = tk.Label(root, text="No file selected", wraplength=300)
-file_label.pack(pady=20)
-
-# Add a button to download the selected file
-download_button = tk.Button(root, text="Download", command=download_file)
-download_button.pack(pady=20)
-
-# Status label to show download result
-status_label = tk.Label(root, text="", wraplength=300)
-status_label.pack(pady=20)
-
-# Start the main loop to run the GUI
-root.mainloop()
+        status_label.config(text="No file selected to down
