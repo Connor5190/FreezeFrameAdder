@@ -10,7 +10,6 @@ import tempfile
 selected_file = None
 output_video = None
 
-
 def place_mp4_file():
     global selected_file
     file_path = filedialog.askopenfilename(
@@ -30,14 +29,16 @@ def add_overlay():
     try:
         # Create a temporary file for the output video (do not save it in the same folder)
         temp_dir = tempfile.mkdtemp()  # Temporary directory
-        output_video = os.path.join(temp_dir, 'output_with_overlay.mp4')
+        output_video = os.path.join(temp_dir, 'EDITED.mp4')
 
         # FFmpeg command to apply the overlay
         cmd = [
             'ffmpeg',
             '-i', selected_file,
             '-i', 'redCircle.png',
-            '-filter_complex', 'transpose=1,overlay=W-w-10:H-h-10',  # Rotate 90 degrees clockwise and add overlay
+            '-filter_complex',
+            '[1:v]scale=100:-1[overlay];[0:v][overlay]overlay=W-w-1000:H-h-10',
+            # Resize the overlay image to 100px width and apply it
             '-codec:a', 'copy',  # Keep the audio as is
             output_video  # Save output to the temporary file
         ]
@@ -93,7 +94,7 @@ def download_file():
 # Create the main window
 root = tk.Tk()
 root.title("MP4 File Selector and Downloader")
-root.geometry("400x300")
+root.geometry("700x300")
 
 # Add a button to select the MP4 file
 select_button = tk.Button(root, text="Place MP4 File", command=place_mp4_file)
@@ -102,10 +103,6 @@ select_button.pack(pady=20)
 # Label to display the selected file path
 file_label = tk.Label(root, text="No file selected", wraplength=300)
 file_label.pack(pady=20)
-
-# Add a Progress bar (optional for feedback)
-progress_bar = ttk.Progressbar(root, length=300, mode='determinate')
-progress_bar.pack(pady=20)
 
 # Add a button to download the processed video (initially disabled)
 download_button = tk.Button(root, text="Download", command=download_file, state=tk.DISABLED)
